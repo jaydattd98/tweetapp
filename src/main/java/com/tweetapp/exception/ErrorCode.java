@@ -15,6 +15,7 @@ public enum ErrorCode {
     INTERNAL_SERVER_EXCEPTION("500", "J006", "Something went wrong while authenticating user details,Please try again"),
     USER_NAME_NOT_AVAILABLE("401", "J007", "Given user name is already been used, Please choose another"),
     UNAUTHORIZED("401", "J007", "Given user is not logged in, Please login first"),
+    EMAIL_ID_ALREADY_REGISTERED("404", "J007", "Given Emil id is already been registered"),
     INVALID_USER_NAME_AND_PASSWORD("401", "J008", "Invalid Login Credential ..!!");
 
     private String status;

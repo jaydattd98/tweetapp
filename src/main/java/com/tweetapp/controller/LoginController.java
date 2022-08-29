@@ -60,9 +60,13 @@ public class LoginController {
                 || isEmpty(user.getContactNumber())) {
             throw new TweetAppServiceException(ErrorCode.INVALID_INPUT);
         }
+        if (!userService.isEmailIdRegistered(user.getEmail())) {
+            throw new TweetAppServiceException(ErrorCode.EMAIL_ID_ALREADY_REGISTERED);
+        }
         if (!userService.isUserNameAvailable(user.getLoginId())) {
             throw new TweetAppServiceException(ErrorCode.USER_NAME_NOT_AVAILABLE);
         }
+
     }
 
     private void validateUserRequestInput(LoginRequest request) throws TweetAppServiceException {

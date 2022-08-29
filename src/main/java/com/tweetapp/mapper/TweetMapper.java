@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TweetMapper {
 
-    public static TweetResponse toTweetResponse(TweetEntity tweet) {
-          return new TweetResponse(tweet.getId(),tweet.getTweetMassage(),tweet.getDate(),tweet.getLikes());
+    public static TweetResponse toTweetResponse(String username, TweetEntity tweet) {
+          return new TweetResponse(tweet.getId(),tweet.getTweetMassage(),username,tweet.getDate(),tweet.getLikes(),tweet.getReplays().stream().count());
     }
 }

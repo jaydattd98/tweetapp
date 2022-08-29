@@ -22,6 +22,8 @@ import java.util.Date;
 public class TweetResponse {
     private long id;
     private String tweetMassage;
+    private String username;
     private Date date;
     private long likes;
+    private long comments;
 }

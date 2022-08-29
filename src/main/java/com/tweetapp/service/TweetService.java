@@ -4,12 +4,13 @@ import com.tweetapp.entity.TweetEntity;
 import com.tweetapp.entity.UserEntity;
 import com.tweetapp.exception.ErrorCode;
 import com.tweetapp.exception.TweetAppServiceException;
-import com.tweetapp.mapper.TweetMapper;
+import com.tweetapp.kafka.KafkaProducer;
 import com.tweetapp.model.response.TweetResponse;
 import com.tweetapp.repository.TweetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,15 +23,16 @@ public class TweetService {
 
     private final TweetRepository tweetRepository;
     private final UserService userService;
+    private final KafkaProducer kafkaProducer;
 
     public TweetEntity createTweet(TweetEntity tweet) {
         return tweetRepository.save(tweet);
     }
 
-    public TweetEntity updateTweetByIdAndMsg(long id, String tweetMassage) throws TweetAppServiceException {
+    public TweetResponse updateTweetByIdAndMsg(String username, long id, String tweetMassage) throws TweetAppServiceException {
         TweetEntity tweet = getTweetEntityById(id);
         tweet.setTweetMassage(tweetMassage);
-        return tweetRepository.save(tweet);
+        return toTweetResponse(username, tweetRepository.save(tweet));
     }
 
     private TweetEntity updateTweet(TweetEntity tweet) {
@@ -38,10 +40,20 @@ public class TweetService {
     }
 
     public List<TweetResponse> getTweets() throws TweetAppServiceException {
-        return getAllTweetEntities()
+        List<TweetResponse> tweetResponses = new ArrayList<>();
+        userService
+                .getUserEntities()
                 .stream()
-                .map(TweetMapper::toTweetResponse)
-                .collect(Collectors.toList());
+                .forEach(userEntity -> populateTweets(tweetResponses, userEntity));
+
+        return tweetResponses;
+    }
+
+    private void populateTweets(List<TweetResponse> tweetResponses, UserEntity userEntity) {
+        userEntity
+                .getTweets()
+                .stream()
+                .forEach(tweetEntity -> tweetResponses.add(toTweetResponse(userEntity.getLoginId(), tweetEntity)));
     }
 
     public TweetEntity getTweetByIdAndUserName(long id, String username) throws TweetAppServiceException {
@@ -59,8 +71,10 @@ public class TweetService {
                 .orElseThrow(() -> new TweetAppServiceException(ErrorCode.TWEET_NOT_FOUND));
     }
 
-    public String removeTweet(long tweetId) throws TweetAppServiceException {
-        tweetRepository.delete(getTweetEntityById(tweetId));
+    public String removeTweet(long tweetId, String username) throws TweetAppServiceException {
+        TweetEntity tweetEntity = getTweetByIdAndUserName(tweetId, username);
+        tweetRepository.delete(tweetEntity);
+        kafkaProducer.sendMessage(tweetEntity.toString());
         return "TweetEntity has deleted Successfully";
     }
 
@@ -77,14 +91,14 @@ public class TweetService {
                 .getUserEntityByUserName(username)
                 .getTweets()
                 .stream()
-                .map(TweetMapper::toTweetResponse)
+                .map(tweetEntity -> toTweetResponse(username, tweetEntity))
                 .collect(Collectors.toList());
     }
 
-    public TweetEntity addLikeForTweet(long id) throws TweetAppServiceException {
+    public TweetResponse addLikeForTweet(String username, long id) throws TweetAppServiceException {
         TweetEntity tweet = getTweetEntityById(id);
         tweet.setLikes(tweet.getLikes() + 1);
-        return updateTweet(tweet);
+        return toTweetResponse(username, updateTweet(tweet));
     }
 
 
@@ -93,7 +107,7 @@ public class TweetService {
         TweetEntity tweet = createTweet(getTweetFromRequest(tweetMassage));
         user.getTweets().add(tweet);
         userService.updateUserEntity(user);
-        return toTweetResponse(tweet);
+        return toTweetResponse(username, tweet);
     }
 
 

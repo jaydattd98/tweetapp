@@ -2,7 +2,6 @@ package com.tweetapp.controller;
 
 import com.tweetapp.entity.ReplyEntity;
 import com.tweetapp.entity.TweetEntity;
-import com.tweetapp.entity.UserEntity;
 import com.tweetapp.exception.ErrorCode;
 import com.tweetapp.exception.TweetAppServiceException;
 import com.tweetapp.model.response.TweetResponse;
@@ -15,10 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
-import static com.tweetapp.mapper.TweetMapper.toTweetResponse;
 import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 @RestController
@@ -46,14 +43,14 @@ public class TweetController {
     public ResponseEntity<TweetResponse> postNewTweet(@RequestBody String tweetMassage, @PathVariable String username) throws TweetAppServiceException {
         checkIsUserLoggedIn(username);
         validateTweetRequestInput(tweetMassage);
-        return new ResponseEntity<>(tweetService.createNewTweet(username,tweetMassage), HttpStatus.OK);
+        return new ResponseEntity<>(tweetService.createNewTweet(username, tweetMassage), HttpStatus.OK);
     }
 
     @PostMapping("/{username}/update/{id}")
     public ResponseEntity<TweetResponse> updateTweet(@RequestBody String tweetMassage, @PathVariable String username, @PathVariable Long id) throws TweetAppServiceException {
         checkIsUserLoggedIn(username);
         validateTweetRequestInput(tweetMassage);
-        return new ResponseEntity<>(toTweetResponse(tweetService.updateTweetByIdAndMsg(id, tweetMassage)), HttpStatus.OK);
+        return new ResponseEntity<>(tweetService.updateTweetByIdAndMsg(username, id, tweetMassage), HttpStatus.OK);
     }
 
     @GetMapping("/{username}/get/{id}")
@@ -66,14 +63,14 @@ public class TweetController {
     public ResponseEntity<String> removeTweet(@PathVariable String username, @PathVariable long id) throws TweetAppServiceException {
         checkIsUserLoggedIn(username);
         validateTweetId(id);
-        return new ResponseEntity<>(tweetService.removeTweet(id), HttpStatus.OK);
+        return new ResponseEntity<>(tweetService.removeTweet(id, username), HttpStatus.OK);
     }
 
     @PutMapping("/{username}/like/{id}")
     public ResponseEntity<TweetResponse> likeTweet(@PathVariable String username, @PathVariable long id) throws TweetAppServiceException {
         checkIsUserLoggedIn(username);
         validateTweetId(id);
-        return new ResponseEntity<>(toTweetResponse(tweetService.addLikeForTweet(id)), HttpStatus.OK);
+        return new ResponseEntity<>(tweetService.addLikeForTweet(username, id), HttpStatus.OK);
     }
 
     @PostMapping("/{username}/reply/{id}")

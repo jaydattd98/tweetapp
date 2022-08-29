@@ -4,6 +4,7 @@ import com.tweetapp.entity.LoginUserDetails;
 import com.tweetapp.entity.UserEntity;
 import com.tweetapp.exception.ErrorCode;
 import com.tweetapp.exception.TweetAppServiceException;
+import com.tweetapp.kafka.KafkaProducer;
 import com.tweetapp.mapper.UserMapper;
 import com.tweetapp.model.request.CreateUserRequest;
 import com.tweetapp.model.response.UserResponse;
@@ -24,6 +25,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final LoginUserRepository loginUserRepository;
+    private final KafkaProducer kafkaProducer;
 
     public UserResponse getUserResponseByUserName(String username) throws TweetAppServiceException {
         return toUserResponse(getUserEntityByUserName(username));
@@ -57,8 +59,10 @@ public class UserService {
     }
 
     public String removeUser(String userName) throws TweetAppServiceException {
-        userRepository.delete(getUserEntityByUserName(userName));
+        UserEntity userEntity = getUserEntityByUserName(userName);
+        userRepository.delete(userEntity);
         loginUserRepository.delete(new LoginUserDetails(userName));
+        kafkaProducer.sendMessage(userEntity.toString());
         return "UserEntity deleted successfully..!!";
     }
 
@@ -92,5 +96,19 @@ public class UserService {
         UserEntity userEntity = getUserEntityByUserName(username);
         userEntity.setPassword(newPassword);
         return toUserResponse(updateUserEntity(userEntity));
+    }
+
+    /**
+     * Methods to check the email id is already registered or not
+     *
+     * @param emailId
+     * @return false for already been used
+     */
+    public boolean isEmailIdRegistered(String emailId) {
+        return getUserEntities()
+                .stream()
+                .filter(user -> emailId.equalsIgnoreCase(user.getEmail()))
+                .collect(Collectors.toList())
+                .isEmpty();
     }
 }
