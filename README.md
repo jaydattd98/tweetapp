@@ -1,5 +1,6 @@
 # tweetapp
 Spring Boot | Angular | Java 8 | Open API | kafka
+
 Spring Boot project for FSE certification
 
 
