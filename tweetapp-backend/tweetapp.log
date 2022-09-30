@@ -1,0 +1,8 @@
+2022-09-09 00:04:49.308  INFO 27988 --- [http-nio-9191-exec-10] com.tweetapp.controller.LoginController  : Entering in LoginController#loginUser
+2022-09-09 00:04:49.474  INFO 27988 --- [http-nio-9191-exec-10] com.tweetapp.service.LoginService        : Entering in LoginService#login
+2022-09-09 00:04:52.217  INFO 27988 --- [http-nio-9191-exec-10] com.tweetapp.service.LoginService        : Found User details from DB => Output user :UserEntity(id=1, firstName=Jaydatt, lastName=Dhorsinge, email=jaydattd98@gmail.com, loginId=Jaydattd98, password=jaydatt@123, contactNumber=8888888888, tweets=[TweetEntity(id=3, tweetMassage=First tweet
+, date=2022-09-08 17:52:00.0, likes=1, replays=[ReplyEntity(id=8, reply=hi this is shubham, date=2022-09-08 18:20:42.0, userName=shubham), ReplyEntity(id=9, reply=one more, date=2022-09-08 18:21:14.0, userName=shubham)]), TweetEntity(id=4, tweetMassage=this is 2nd tweet, date=2022-09-08 18:15:41.0, likes=0, replays=[])])
+2022-09-09 00:04:56.776  INFO 27988 --- [http-nio-9191-exec-10] com.tweetapp.service.LoginService        : End of LoginService#login
+2022-09-09 00:41:28.172  INFO 27988 --- [Thread-8] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2022-09-09 00:41:28.175  INFO 27988 --- [Thread-8] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2022-09-09 00:41:54.492  INFO 27988 --- [Thread-8] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
